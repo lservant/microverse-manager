@@ -1,10 +1,22 @@
-[gd_scene load_steps=2 format=3 uid="uid://2t10mdriqech"]
+[gd_scene load_steps=5 format=3 uid="uid://2t10mdriqech"]
 
 [ext_resource type="Texture2D" uid="uid://nx1pkhxih2ci" path="res://icon.svg" id="1_2i7g8"]
+[ext_resource type="Script" uid="uid://be8bnqd03arc3" path="res://bottle/bottle_scene.gd" id="1_lie65"]
+[ext_resource type="Script" uid="uid://cc28n4jvci3d1" path="res://resources/resource_manager.gd" id="3_tid1i"]
+[ext_resource type="Resource" uid="uid://8qo068e14i05" path="res://resources/pools/starter.tres" id="4_tid1i"]
 
-[node name="BottleScene" type="Node2D"]
+[node name="BottleScene" type="Node2D" node_paths=PackedStringArray("resources")]
+script = ExtResource("1_lie65")
+resources = NodePath("ResourceManager")
 
 [node name="Bottle" type="Sprite2D" parent="."]
 position = Vector2(224, 144)
 scale = Vector2(2.97656, 1.70703)
 texture = ExtResource("1_2i7g8")
+
+[node name="ResourceManager" type="Node" parent="."]
+script = ExtResource("3_tid1i")
+resource_pool = ExtResource("4_tid1i")
+metadata/_custom_type_script = "uid://cc28n4jvci3d1"
+
+[connection signal="resource_changed" from="ResourceManager" to="." method="_on_resource_manager_resource_changed"]

@@ -19,12 +19,35 @@ const RESOURCE_TYPE_NAMES = {
   ResourceType.CARBON_DIOXIDE: "Carbon Dioxide"
 }
 
-@export var resources := {}
+@export var resources: Array[ResourceInfo]
+
+"""
+Gets the amount of the given resource type in the resource pool.
+"""
+func get_resource(resource_type: ResourceType) -> ResourceInfo:
+  for resource in resources:
+    if resource.resource_type == resource_type:
+      return resource
+  return ResourceInfo.new()
+
+"""
+Sets the amount of the given resource type in the resource pool.
+If the resource type does not exist, it will be created.
+"""
+func set_resource(resource_type: ResourceType, amount: int) -> void:
+  for resource in resources:
+    if resource.resource_type == resource_type:
+      resource.amount = amount
+      return
+  var new_resource = ResourceInfo.new()
+  new_resource.resource_type = resource_type
+  new_resource.amount = amount
+  resources.append(new_resource)
 
 """
 Returns the name of the given resource type.
 """
-func get_resource_name(resource_type: ResourceType) -> String:
+static func get_resource_name(resource_type: ResourceType) -> String:
   if resource_type < 0 or resource_type >= ResourceType.keys().size():
     return "Unknown"
   if RESOURCE_TYPE_NAMES.has(resource_type):
