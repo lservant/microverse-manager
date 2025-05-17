@@ -1,19 +1,18 @@
 [gd_scene load_steps=6 format=3 uid="uid://2t10mdriqech"]
 
-[ext_resource type="Texture2D" uid="uid://nx1pkhxih2ci" path="res://icon.svg" id="1_2i7g8"]
 [ext_resource type="Script" uid="uid://be8bnqd03arc3" path="res://bottle/bottle_scene.gd" id="1_lie65"]
+[ext_resource type="Texture2D" uid="uid://dfvfkps25yerv" path="res://assets/microverse-manager-design.png" id="2_ew3lf"]
 [ext_resource type="Script" uid="uid://cc28n4jvci3d1" path="res://resources/resource_manager.gd" id="3_tid1i"]
 [ext_resource type="Resource" uid="uid://8qo068e14i05" path="res://resources/pools/starter.tres" id="4_tid1i"]
-[ext_resource type="Script" uid="uid://b03x81m35yoi6" path="res://ui/resource_list.gd" id="5_ew3lf"]
+[ext_resource type="PackedScene" uid="uid://br86804n3me47" path="res://ui/resource_list.tscn" id="5_ew3lf"]
 
 [node name="BottleScene" type="Node2D" node_paths=PackedStringArray("resources")]
 script = ExtResource("1_lie65")
 resources = NodePath("ResourceManager")
 
-[node name="Bottle" type="Sprite2D" parent="."]
-position = Vector2(224, 144)
-scale = Vector2(2.97656, 1.70703)
-texture = ExtResource("1_2i7g8")
+[node name="Background" type="Sprite2D" parent="."]
+texture = ExtResource("2_ew3lf")
+centered = false
 
 [node name="ResourceManager" type="Node" parent="."]
 script = ExtResource("3_tid1i")
@@ -22,28 +21,15 @@ metadata/_custom_type_script = "uid://cc28n4jvci3d1"
 
 [node name="UI" type="CanvasLayer" parent="."]
 
-[node name="ColorRect" type="ColorRect" parent="UI"]
+[node name="ResourceList" parent="UI" node_paths=PackedStringArray("resource_manager") instance=ExtResource("5_ew3lf")]
 anchors_preset = -1
-anchor_top = 0.888889
-anchor_right = 1.0
-anchor_bottom = 1.0
+anchor_left = 0.015625
+anchor_top = 0.833333
+anchor_right = 0.484375
+anchor_bottom = 0.972222
 grow_horizontal = 2
 grow_vertical = 0
-color = Color(0.2294, 0.24149, 0.31, 1)
+resource_manager = NodePath("../../ResourceManager")
 metadata/_edit_use_anchors_ = true
-
-[node name="ResourceList" type="VFlowContainer" parent="UI/ColorRect" node_paths=PackedStringArray("resource_manager")]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-offset_left = 4.0
-offset_top = 3.0
-offset_right = -8.0
-offset_bottom = -3.0
-grow_horizontal = 2
-grow_vertical = 2
-script = ExtResource("5_ew3lf")
-resource_manager = NodePath("../../../ResourceManager")
 
 [connection signal="resource_changed" from="ResourceManager" to="." method="_on_resource_manager_resource_changed"]

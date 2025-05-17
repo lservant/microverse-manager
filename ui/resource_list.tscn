@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://br86804n3me47"]
+
+[ext_resource type="Script" uid="uid://b03x81m35yoi6" path="res://ui/resource_list.gd" id="1_p2y86"]
+
+[node name="ResourceList" type="VFlowContainer"]
+script = ExtResource("1_p2y86")
