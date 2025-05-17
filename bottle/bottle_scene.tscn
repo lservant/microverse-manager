@@ -1,0 +1,10 @@
+[gd_scene load_steps=2 format=3 uid="uid://2t10mdriqech"]
+
+[ext_resource type="Texture2D" uid="uid://nx1pkhxih2ci" path="res://icon.svg" id="1_2i7g8"]
+
+[node name="BottleScene" type="Node2D"]
+
+[node name="Bottle" type="Sprite2D" parent="."]
+position = Vector2(224, 144)
+scale = Vector2(2.97656, 1.70703)
+texture = ExtResource("1_2i7g8")
