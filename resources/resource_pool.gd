@@ -19,6 +19,15 @@ const RESOURCE_TYPE_NAMES = {
   ResourceType.CARBON_DIOXIDE: "Carbon Dioxide"
 }
 
+const RESOURCE_TYPE_ABBREVIATIONS = {
+  ResourceType.WATER: "H2O",
+  ResourceType.NUTRIENTS: "NUT",
+  ResourceType.SUNLIGHT: "LIT",
+  ResourceType.ORGANICS: "ORG",
+  ResourceType.OXYGEN: "OXY",
+  ResourceType.CARBON_DIOXIDE: "CO2"
+}
+
 @export var resources: Array[ResourceInfo]
 
 """
@@ -52,4 +61,14 @@ static func get_resource_name(resource_type: ResourceType) -> String:
     return "Unknown"
   if RESOURCE_TYPE_NAMES.has(resource_type):
     return RESOURCE_TYPE_NAMES[resource_type]
+  return ResourceType.keys()[resource_type]
+
+"""
+Returns the abbreviation of the given resource type.
+"""
+static func get_resource_abbreviation(resource_type: ResourceType) -> String:
+  if resource_type < 0 or resource_type >= ResourceType.keys().size():
+    return "UNK"
+  if RESOURCE_TYPE_ABBREVIATIONS.has(resource_type):
+    return RESOURCE_TYPE_ABBREVIATIONS[resource_type]
   return ResourceType.keys()[resource_type]

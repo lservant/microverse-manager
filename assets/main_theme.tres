@@ -1,0 +1,7 @@
+[gd_resource type="Theme" load_steps=2 format=3 uid="uid://b8suq75fbpjhv"]
+
+[ext_resource type="FontFile" uid="uid://ck0iemc5cxwbs" path="res://assets/Early GameBoy.ttf" id="1_xgdp2"]
+
+[resource]
+Label/font_sizes/font_size = 8
+Label/fonts/font = ExtResource("1_xgdp2")

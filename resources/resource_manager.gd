@@ -52,3 +52,9 @@ Returns the amount of the given resource type in the resource pool.
 """
 func get_resource(resource_type: ResourcePool.ResourceType) -> int:
   return resource_pool.get_resource(resource_type).amount
+
+"""
+Returns current resources in the resource pool.
+"""
+func get_resources() -> Array[ResourceInfo]:
+  return resource_pool.resources
