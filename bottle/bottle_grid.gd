@@ -22,8 +22,18 @@ func build_cell_grid() -> void:
     cell_grid_columns.append([])
     for y in range(cell_grid_size.y):
       var tl_tile = Vector2i(x, y) * 2
-      cell_grid_columns[x].append(BottleCell.create(cell_grid_columns, tl_tile, tile_offset))
-      
+      var cell = BottleCell.create(cell_grid_columns, tl_tile, tile_offset)
+      debug_resources(cell)
+      cell_grid_columns[x].append(cell)
+      cell.tile_requested_update.connect(_on_tile_requested_update)
+
+func debug_resources(cell):
+  if cell.cell_coords.x != 1:
+    return
+  if cell.cell_coords.y < 5:
+    cell.resources.set_resource(ResourcePool.ResourceType.WATER, 100)
+  if cell.cell_coords.y == 5:
+    cell.resources.set_resource(ResourcePool.ResourceType.WATER, 75)
 
 func _input(event):
   debug_mouseclick(event)
@@ -48,3 +58,19 @@ func get_cell(tile_pos: Vector2i) -> BottleCell:
         print(neighbors)
         return cell
   return null
+
+func update_cells() -> void:
+  for col in cell_grid_columns:
+      for cell: BottleCell in col:
+          cell.update_tiles()
+
+func _on_tile_requested_update(tile_pos: Vector2i, resource: ResourcePool.ResourceType) -> void:
+  var atlas_coords = {
+    ResourcePool.ResourceType.WATER: Vector2i(0, 0),
+    ResourcePool.ResourceType.OXYGEN: Vector2i(-1, -1),
+  }
+  self.set_cell(tile_pos, tile_set.get_source_id(0), atlas_coords[resource])
+
+func _on_sim_timer_timeout() -> void:
+  print("tick")
+  update_cells()

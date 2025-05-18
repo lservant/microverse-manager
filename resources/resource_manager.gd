@@ -9,52 +9,30 @@ func _init() -> void:
   if resource_pool == null:
     resource_pool = ResourcePool.new()
 
-"""
-Adds amount of given resource type to the _resources pool.
-If the resource type does not exist, it will be created.
-"""
+func _ready() -> void:
+  resource_pool.resource_changed.connect(_on_resource_changed)
+  
+## Adds amount of given resource type to the _resources pool.
+## If the resource type does not exist, it will be created.
 func add_resource(resource_type: ResourcePool.ResourceType, amount: int) -> void:
-  var previous_amount = get_resource(resource_type)
-  resource_pool.set_resource(resource_type, previous_amount + amount)
-  var new_amount = get_resource(resource_type)
+  resource_pool.add_resource(resource_type, amount)
 
-  resource_changed.emit(resource_type, previous_amount, new_amount)
-
-"""
-Removes amount of given resource type from the _resources pool. Returning true if successful.
-If the resource type does not exist or the amount to remove is greater than the current amount, it will return false.
-"""
+## Removes amount of given resource type from the _resources pool. Returning true if successful.
+## If the resource type does not exist or the amount to remove is greater than the current amount, it will return false.
 func remove_resource(resource_type: ResourcePool.ResourceType, amount: int) -> bool:
-  var current = get_resource(resource_type)
-  if amount > current:
-    return false
+  return resource_pool.remove_resource(resource_type, amount)
 
-  resource_pool.set_resource(resource_type, current - amount)
-  var new_amount = get_resource(resource_type)
-
-  resource_changed.emit(resource_type, current, new_amount)
-  return true
-
-"""
-Empties the resource pool of the given resource type and returns the amount removed.
-"""
+## Empties the resource pool of the given resource type and returns the amount removed.
 func empty_resource(resource_type: ResourcePool.ResourceType) -> int:
-  var resource = resource_pool.get_resource(resource_type)
-  if resource:
-    var amount = resource.amount
-    remove_resource(resource_type, amount)
-    return amount
-  else:
-    return 0
+  return resource_pool.empty_resource(resource_type)
 
-"""
-Returns the amount of the given resource type in the resource pool.
-"""
+## Returns the amount of the given resource type in the resource pool.
 func get_resource(resource_type: ResourcePool.ResourceType) -> int:
   return resource_pool.get_resource(resource_type).amount
 
-"""
-Returns current resources in the resource pool.
-"""
+## Returns current resources in the resource pool.
 func get_resources() -> Array[ResourceInfo]:
   return resource_pool.resources
+
+func _on_resource_changed(resource_type: ResourcePool.ResourceType, previous_amount: int, new_amount: int) -> void:
+  resource_changed.emit(resource_type, previous_amount, new_amount)

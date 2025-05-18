@@ -1,25 +1,46 @@
 extends Resource
 class_name BottleCell
 
+signal tile_requested_update(tile_pos: Vector2i, resource: ResourcePool.ResourceType)
+
 var resources: ResourcePool = ResourcePool.new()
+
+## Moves the given amount of resource from this cell to the destination cell.
+func move_resource(resource_type: ResourcePool.ResourceType, amount: int, destination_cell: BottleCell) -> void:
+  print("Attempting to move ", amount, " of ", resource_type, " from ", cell_coords, " to ", destination_cell.cell_coords)
+  if resources.remove_resource(resource_type, amount):
+    destination_cell.resources.add_resource(resource_type, amount)
+    print("Moved ", amount, " of ", resource_type, " from ", cell_coords, " to ", destination_cell.cell_coords)
+    print("New amounts: Self: ", resources.get_resource(resource_type).amount, " Dest: ", destination_cell.resources.get_resource(resource_type).amount)
+
+func move_water(amount: int, destination_cell: BottleCell) -> void:
+  var dest_water = destination_cell.resources.get_resource(ResourcePool.ResourceType.WATER)
+  if dest_water.amount + amount > 100:
+    amount = 100 - dest_water.amount
+  move_resource(ResourcePool.ResourceType.WATER, amount, destination_cell)
+
+func update_resources() -> void:
+  var water = resources.get_resource(ResourcePool.ResourceType.WATER)
+  if water.amount == 0:
+    return
+  var neighbors = get_neighbors()
+  if neighbors.bottom != null and neighbors.bottom.get_resource(ResourcePool.ResourceType.WATER).amount < 100:
+    move_water(water.amount, neighbors.bottom)
+    water = resources.get_resource(ResourcePool.ResourceType.WATER)
+    if water.amount == 0:
+      return
 
 var _bottle_grid: Array[Array]
 var _bottle_grid_size:
   get:
     return Vector2i(_bottle_grid.size(), _bottle_grid[0].size())
 
-static func create(bottle_grid: Array[Array], tl_tile: Vector2i, tile_offset: Vector2i) -> BottleCell:
-  var cell = BottleCell.new()
-  cell._bottle_grid = bottle_grid
-  
-  cell._tiles.top_left = Vector2i(tl_tile.x, tl_tile.y) + tile_offset
-  cell._tiles.top_right = Vector2i(tl_tile.x + 1, tl_tile.y) + tile_offset
-  cell._tiles.bottom_left = Vector2i(tl_tile.x, tl_tile.y + 1) + tile_offset
-  cell._tiles.bottom_right = Vector2i(tl_tile.x + 1, tl_tile.y + 1) + tile_offset
-  cell.cell_coords = tl_tile / 2
-  return cell
-
 var cell_coords: Vector2i = Vector2(-1, -1)
+var coords:
+  get:
+    return cell_coords
+  set(value):
+    cell_coords = value
 func is_top() -> bool:
   return cell_coords.y <= 0
 func is_bottom() -> bool:
@@ -41,6 +62,23 @@ func has_tile(tile_pos: Vector2i) -> bool:
   tile_pos == _tiles.top_right or \
   tile_pos == _tiles.bottom_left or \
   tile_pos == _tiles.bottom_right
+
+## Check the resources in the cell and fire events for tiles that need updating
+func update_tiles() -> void:
+  update_resources()
+  var water = resources.get_resource(ResourcePool.ResourceType.WATER)
+  if water.amount <= 0:
+    tile_requested_update.emit(_tiles.bottom_left, ResourcePool.ResourceType.VACCUUM)
+    tile_requested_update.emit(_tiles.bottom_right, ResourcePool.ResourceType.VACCUUM)
+  if water.amount > 0:
+    tile_requested_update.emit(_tiles.bottom_left, ResourcePool.ResourceType.WATER)
+    tile_requested_update.emit(_tiles.bottom_right, ResourcePool.ResourceType.WATER)
+  if water.amount <= 50:
+    tile_requested_update.emit(_tiles.top_left, ResourcePool.ResourceType.VACCUUM)
+    tile_requested_update.emit(_tiles.top_right, ResourcePool.ResourceType.VACCUUM)
+  if water.amount >= 100:
+    tile_requested_update.emit(_tiles.top_left, ResourcePool.ResourceType.WATER)
+    tile_requested_update.emit(_tiles.top_right, ResourcePool.ResourceType.WATER)
 
 var _neighbors: Neighbors = Neighbors.new()
 class Neighbors:
@@ -105,3 +143,14 @@ func get_neighbors() -> Neighbors:
 
 func _to_string() -> String:
   return "BottleCell: " + str(cell_coords) + " Tiles: " + str(_tiles.top_left) + ", " + str(_tiles.top_right) + ", " + str(_tiles.bottom_left) + ", " + str(_tiles.bottom_right)
+
+static func create(bottle_grid: Array[Array], tl_tile: Vector2i, tile_offset: Vector2i) -> BottleCell:
+  var cell = BottleCell.new()
+  cell._bottle_grid = bottle_grid
+  
+  cell._tiles.top_left = Vector2i(tl_tile.x, tl_tile.y) + tile_offset
+  cell._tiles.top_right = Vector2i(tl_tile.x + 1, tl_tile.y) + tile_offset
+  cell._tiles.bottom_left = Vector2i(tl_tile.x, tl_tile.y + 1) + tile_offset
+  cell._tiles.bottom_right = Vector2i(tl_tile.x + 1, tl_tile.y + 1) + tile_offset
+  cell.cell_coords = tl_tile / 2
+  return cell

@@ -1,5 +1,8 @@
 extends Resource
+## Collects and describes resources.
 class_name ResourcePool
+
+signal resource_changed(resource_type: ResourceType, previous_amount: int, new_amount: int)
 
 enum ResourceType {
   WATER,
@@ -7,7 +10,8 @@ enum ResourceType {
   SUNLIGHT,
   ORGANICS,
   OXYGEN,
-  CARBON_DIOXIDE
+  CARBON_DIOXIDE,
+  VACCUUM,
 }
 
 const RESOURCE_TYPE_NAMES = {
@@ -16,7 +20,8 @@ const RESOURCE_TYPE_NAMES = {
   ResourceType.SUNLIGHT: "Sunlight",
   ResourceType.ORGANICS: "Organics",
   ResourceType.OXYGEN: "Oxygen",
-  ResourceType.CARBON_DIOXIDE: "Carbon Dioxide"
+  ResourceType.CARBON_DIOXIDE: "Carbon Dioxide",
+  ResourceType.VACCUUM: "Vacuum",
 }
 
 const RESOURCE_TYPE_ABBREVIATIONS = {
@@ -25,24 +30,22 @@ const RESOURCE_TYPE_ABBREVIATIONS = {
   ResourceType.SUNLIGHT: "LIT",
   ResourceType.ORGANICS: "ORG",
   ResourceType.OXYGEN: "OXY",
-  ResourceType.CARBON_DIOXIDE: "CO2"
+  ResourceType.CARBON_DIOXIDE: "CO2",
+  ResourceType.VACCUUM: "VAC",
 }
 
 @export var resources: Array[ResourceInfo]
 
-"""
-Gets the amount of the given resource type in the resource pool.
-"""
+
+## Gets the amount of the given resource type in the resource pool.
 func get_resource(resource_type: ResourceType) -> ResourceInfo:
   for resource in resources:
     if resource.resource_type == resource_type:
       return resource
   return ResourceInfo.new()
 
-"""
-Sets the amount of the given resource type in the resource pool.
-If the resource type does not exist, it will be created.
-"""
+## Sets the amount of the given resource type in the resource pool.
+## If the resource type does not exist, it will be created.
 func set_resource(resource_type: ResourceType, amount: int) -> void:
   for resource in resources:
     if resource.resource_type == resource_type:
@@ -53,9 +56,37 @@ func set_resource(resource_type: ResourceType, amount: int) -> void:
   new_resource.amount = amount
   resources.append(new_resource)
 
-"""
-Returns the name of the given resource type.
-"""
+## Adds amount of given resource type to the _resources pool.
+## If the resource type does not exist, it will be created.
+func add_resource(resource_type: ResourcePool.ResourceType, amount: int) -> void:
+  var previous_amount = get_resource(resource_type).amount
+  set_resource(resource_type, previous_amount + amount)
+  var new_amount = get_resource(resource_type).amount
+  resource_changed.emit(resource_type, previous_amount, new_amount)
+
+## Removes amount of given resource type from the _resources pool. Returning true if successful.
+## If the resource type does not exist or the amount to remove is greater than the current amount, it will return false.
+func remove_resource(resource_type: ResourcePool.ResourceType, amount: int) -> bool:
+  var current = get_resource(resource_type).amount
+  if amount > current:
+    return false
+
+  set_resource(resource_type, current - amount)
+  var new_amount = get_resource(resource_type).amount
+  resource_changed.emit(resource_type, current, new_amount)
+  return true
+
+## Empties the resource pool of the given resource type and returns the amount removed.
+func empty_resource(resource_type: ResourcePool.ResourceType) -> int:
+  var resource = get_resource(resource_type)
+  if resource:
+    var amount = resource.amount
+    remove_resource(resource_type, amount)
+    return amount
+  else:
+    return 0
+
+## Returns the name of the given resource type.
 static func get_resource_name(resource_type: ResourceType) -> String:
   if resource_type < 0 or resource_type >= ResourceType.keys().size():
     return "Unknown"
@@ -63,9 +94,7 @@ static func get_resource_name(resource_type: ResourceType) -> String:
     return RESOURCE_TYPE_NAMES[resource_type]
   return ResourceType.keys()[resource_type]
 
-"""
-Returns the abbreviation of the given resource type.
-"""
+## Returns the abbreviation of the given resource type.
 static func get_resource_abbreviation(resource_type: ResourceType) -> String:
   if resource_type < 0 or resource_type >= ResourceType.keys().size():
     return "UNK"
