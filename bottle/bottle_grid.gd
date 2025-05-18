@@ -9,7 +9,7 @@ var tile_grid_size: Vector2i = Vector2(55, 23)
 var cell_size: Vector2i = tile_set.tile_size * 2
 var cell_grid_size: Vector2i = tile_grid_size / 2 + Vector2i.ONE
 
-var cell_grid_columns = []
+var cell_grid_columns: Array[Array] = []
 
 func _ready() -> void:
   build_cell_grid()
@@ -17,6 +17,7 @@ func _ready() -> void:
 func build_cell_grid() -> void:
   print(cell_size)
   print(cell_grid_size)
+  print(tile_grid_size)
   for x in range(cell_grid_size.x):
     cell_grid_columns.append([])
     for y in range(cell_grid_size.y):
@@ -43,7 +44,7 @@ func get_cell(tile_pos: Vector2i) -> BottleCell:
     for cell: BottleCell in col:
       if cell.has_tile(tile_pos):
         print(cell)
-        # var neighbors = cell.get_neighbors()
-        # print(neighbors)
+        var neighbors = cell.get_neighbors()
+        print(neighbors)
         return cell
   return null
