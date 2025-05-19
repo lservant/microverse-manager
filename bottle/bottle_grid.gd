@@ -49,13 +49,15 @@ func debug_mouseclick(event: InputEvent) -> void:
     print("Tile:", tile_pos.x, ", ", tile_pos.y)
     var cell = get_cell(tile_pos)
 
+  # Trigger update_cells on right click (button_index 2 is right mouse button)
+  # if event.button_index == MOUSE_BUTTON_RIGHT:
+  #   update_cells()
+
 func get_cell(tile_pos: Vector2i) -> BottleCell:
   for col in cell_grid_columns:
     for cell: BottleCell in col:
       if cell.has_tile(tile_pos):
-        print(cell)
-        var neighbors = cell.get_neighbors()
-        print(neighbors)
+        print(cell.resources.get_resource(ResourcePool.ResourceType.WATER).amount)
         return cell
   return null
 
@@ -67,7 +69,7 @@ func update_cells() -> void:
 func _on_tile_requested_update(tile_pos: Vector2i, resource: ResourcePool.ResourceType) -> void:
   var atlas_coords = {
     ResourcePool.ResourceType.WATER: Vector2i(0, 0),
-    ResourcePool.ResourceType.OXYGEN: Vector2i(-1, -1),
+    ResourcePool.ResourceType.VACCUUM: Vector2i(-1, -1),
   }
   self.set_cell(tile_pos, tile_set.get_source_id(0), atlas_coords[resource])
 
