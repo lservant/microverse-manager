@@ -9,6 +9,7 @@ const RESOURCE_LIMIT: int = 100
 func update_resources() -> void:
   move_water()
   move_nutrients()
+  move_organics()
 
 func move_water() -> void:
   var water = resources.get_resource(ResourcePool.ResourceType.WATER)
@@ -17,7 +18,7 @@ func move_water() -> void:
   var was_dropped = false
   if not is_bottom():
     was_dropped = drop_resource(ResourcePool.ResourceType.WATER)
-  if water.amount < 3 or was_dropped:
+  if water.amount < 3:
     return
   spill_resource(ResourcePool.ResourceType.WATER)
 
@@ -37,9 +38,20 @@ func move_nutrients() -> void:
   if not is_bottom() and water.amount <= 0:
       was_dropped = drop_resource(ResourcePool.ResourceType.NUTRIENTS)
   
-  if nuts.amount == 0 or was_dropped or was_lifted:
+  if nuts.amount == 0:
     return
   spill_resource(ResourcePool.ResourceType.NUTRIENTS)
+
+func move_organics() -> void:
+  var organics = resources.get_resource(ResourcePool.ResourceType.ORGANICS)
+  if organics.amount == 0:
+    return
+  var was_dropped = false
+  if not is_bottom():
+    was_dropped = drop_resource(ResourcePool.ResourceType.ORGANICS)
+  if organics.amount < 50:
+    return
+  spill_resource(ResourcePool.ResourceType.ORGANICS)
 
 func spill_resource(resource_type: ResourcePool.ResourceType) -> void:
   var rsrc = resources.get_resource(resource_type)
@@ -61,18 +73,18 @@ func spill_resource(resource_type: ResourcePool.ResourceType) -> void:
 
   elif neighbors.left != null:
     var left_rsrc = neighbors.left.resources.get_resource(resource_type)
-    spill_one_side(left_rsrc, rsrc)
+    spill_one_side(left_rsrc, rsrc, neighbors.left)
 
   elif neighbors.right != null:
     var right_rsrc = neighbors.right.resources.get_resource(resource_type)
-    spill_one_side(right_rsrc, rsrc)
+    spill_one_side(right_rsrc, rsrc, neighbors.right)
 
-func spill_one_side(side_rsrc: ResourceInfo, rsrc: ResourceInfo):
+func spill_one_side(side_rsrc: ResourceInfo, rsrc: ResourceInfo, neighbor: BottleCell) -> void:
   if side_rsrc.amount < RESOURCE_LIMIT && side_rsrc.amount < rsrc.amount:
     var total: int = side_rsrc.amount + rsrc.amount
     var amount_to_move = total / 2 - side_rsrc.amount
     if amount_to_move <= rsrc.amount:
-      move_resource(rsrc.resource_type, amount_to_move, neighbors.right)
+      move_resource(rsrc.resource_type, amount_to_move, neighbor)
 
 func drop_resource(resource_type: ResourcePool.ResourceType) -> bool:
   var rsrc = resources.get_resource(resource_type)
@@ -149,6 +161,7 @@ func update_tiles() -> void:
   update_resources()
   var water = resources.get_resource(ResourcePool.ResourceType.WATER).amount
   var nutrients = resources.get_resource(ResourcePool.ResourceType.NUTRIENTS).amount
+  var organics = resources.get_resource(ResourcePool.ResourceType.ORGANICS).amount
   var tiles = {
     "tl": ResourcePool.ResourceType.VACCUUM,
     "tr": ResourcePool.ResourceType.VACCUUM,
@@ -169,6 +182,9 @@ func update_tiles() -> void:
     print(self, resources)
     tiles["tl"] = ResourcePool.ResourceType.NUTRIENTS
     tiles["tr"] = ResourcePool.ResourceType.NUTRIENTS
+  if organics > 0:
+    tiles["bl"] = ResourcePool.ResourceType.ORGANICS
+    tiles["br"] = ResourcePool.ResourceType.ORGANICS
   
   tile_requested_update.emit(_tiles.top_left, tiles["tl"])
   tile_requested_update.emit(_tiles.top_right, tiles["tr"])

@@ -28,12 +28,13 @@ func build_cell_grid() -> void:
       cell.tile_requested_update.connect(_on_tile_requested_update)
 
 func debug_resources(cell):
-  if cell.cell_coords.x != 1:
+  if cell.cell_coords.x > 5:
     return
-  if cell.cell_coords.y < 5:
+  if cell.cell_coords.y < 10:
     cell.resources.set_resource(ResourcePool.ResourceType.WATER, 100)
   if cell.cell_coords.y == 5:
     cell.resources.set_resource(ResourcePool.ResourceType.NUTRIENTS, 75)
+    cell.resources.set_resource(ResourcePool.ResourceType.ORGANICS, 50)
 
 func _input(event):
   debug_mouseclick(event)
@@ -71,10 +72,11 @@ func _on_tile_requested_update(tile_pos: Vector2i, resource: ResourcePool.Resour
     ResourcePool.ResourceType.WATER: Vector2i(0, 0),
     ResourcePool.ResourceType.VACCUUM: Vector2i(-1, -1),
     ResourcePool.ResourceType.NUTRIENTS: Vector2i(4, 0),
+    ResourcePool.ResourceType.ORGANICS: Vector2i(6, 0),
   }
   self.set_cell(tile_pos, tile_set.get_source_id(0), atlas_coords[resource])
 
 func _on_sim_timer_timeout() -> void:
-  pass
-  # print("tick")
-  # update_cells()
+  # pass
+  print("tick")
+  update_cells()
