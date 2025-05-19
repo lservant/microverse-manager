@@ -86,6 +86,13 @@ func empty_resource(resource_type: ResourcePool.ResourceType) -> int:
   else:
     return 0
 
+## Returns true if the resource pool is empty.
+func is_empty() -> bool:
+  for resource in resources:
+    if resource.amount > 0:
+      return false
+  return true
+
 ## Returns the name of the given resource type.
 static func get_resource_name(resource_type: ResourceType) -> String:
   if resource_type < 0 or resource_type >= ResourceType.keys().size():
@@ -101,3 +108,9 @@ static func get_resource_abbreviation(resource_type: ResourceType) -> String:
   if RESOURCE_TYPE_ABBREVIATIONS.has(resource_type):
     return RESOURCE_TYPE_ABBREVIATIONS[resource_type]
   return ResourceType.keys()[resource_type]
+
+func _to_string() -> String:
+  var result = ""
+  for resource in resources:
+    result += RESOURCE_TYPE_NAMES[resource.resource_type] + ": " + str(resource.amount) + "\n"
+  return result

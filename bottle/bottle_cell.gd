@@ -4,26 +4,43 @@ class_name BottleCell
 signal tile_requested_update(tile_pos: Vector2i, resource: ResourcePool.ResourceType)
 
 var resources: ResourcePool = ResourcePool.new()
+const RESOURCE_LIMIT: int = 100
 
-## Moves the given amount of resource from this cell to the destination cell.
-func move_resource(resource_type: ResourcePool.ResourceType, amount: int, destination_cell: BottleCell) -> void:
-  if amount <= 0:
-    return
-  if resources.remove_resource(resource_type, amount):
-    destination_cell.resources.add_resource(resource_type, amount)
+func update_resources() -> void:
+  move_water()
+  move_nutrients()
 
 func move_water() -> void:
   var water = resources.get_resource(ResourcePool.ResourceType.WATER)
   if water.amount == 0:
     return
-  var water_dropped = false
+  var was_dropped = false
   if not is_bottom():
-    water_dropped = drop_resource(ResourcePool.ResourceType.WATER)
-  if water.amount < 3 or water_dropped:
+    was_dropped = drop_resource(ResourcePool.ResourceType.WATER)
+  if water.amount < 3 or was_dropped:
     return
   spill_resource(ResourcePool.ResourceType.WATER)
 
-const RESOURCE_LIMIT: int = 100
+func move_nutrients() -> void:
+  var nuts = resources.get_resource(ResourcePool.ResourceType.NUTRIENTS)
+  var water = resources.get_resource(ResourcePool.ResourceType.WATER)
+  if nuts.amount == 0:
+    return
+
+  var was_lifted = false
+  if water.amount >= RESOURCE_LIMIT or \
+  (neighbors.top != null and neighbors.top.resources.get_resource(ResourcePool.ResourceType.WATER).amount > 0):
+    print("trying to lift nutrients at ", cell_coords)
+    was_lifted = lift_resource(ResourcePool.ResourceType.NUTRIENTS)
+
+  var was_dropped = false
+  if not is_bottom() and water.amount <= 0:
+      was_dropped = drop_resource(ResourcePool.ResourceType.NUTRIENTS)
+  
+  if nuts.amount == 0 or was_dropped or was_lifted:
+    return
+  spill_resource(ResourcePool.ResourceType.NUTRIENTS)
+
 func spill_resource(resource_type: ResourcePool.ResourceType) -> void:
   var rsrc = resources.get_resource(resource_type)
 
@@ -32,7 +49,7 @@ func spill_resource(resource_type: ResourcePool.ResourceType) -> void:
     var right_rsrc = neighbors.right.resources.get_resource(resource_type)
     var total: int = left_rsrc.amount + right_rsrc.amount + rsrc.amount
     var avg: int = total / 3
-    print("Left: %s, Right: %s, Avg: %s" % [left_rsrc.amount, right_rsrc.amount, avg])
+    # print("Left: %s, Right: %s, Avg: %s" % [left_rsrc.amount, right_rsrc.amount, avg])
     if left_rsrc.amount < RESOURCE_LIMIT and left_rsrc.amount < avg:
       var amount_to_move = avg - left_rsrc.amount
       if amount_to_move <= rsrc.amount:
@@ -68,8 +85,31 @@ func drop_resource(resource_type: ResourcePool.ResourceType) -> bool:
   move_resource(resource_type, amount_to_move, neighbors.bottom)
   return true
 
-func update_resources() -> void:
-  move_water()
+func lift_resource(resource_type: ResourcePool.ResourceType) -> bool:
+  var rsrc = resources.get_resource(resource_type)
+  if rsrc.amount <= 0:
+    print("No resources to lift")
+    return false
+  if neighbors.top == null:
+    print("No top neighbor to lift to")
+    return false
+  var top_rsrc = neighbors.top.resources.get_resource(resource_type)
+  if top_rsrc.amount >= RESOURCE_LIMIT:
+    print("Top neighbor is full")
+    return false
+  var amount_to_move = RESOURCE_LIMIT - top_rsrc.amount
+  if amount_to_move > rsrc.amount:
+    amount_to_move = rsrc.amount
+  move_resource(resource_type, amount_to_move, neighbors.top)
+  neighbors.top.update_tiles()
+  return true
+
+## Moves the given amount of resource from this cell to the destination cell.
+func move_resource(resource_type: ResourcePool.ResourceType, amount: int, destination_cell: BottleCell) -> void:
+  if amount <= 0:
+    return
+  if resources.remove_resource(resource_type, amount):
+    destination_cell.resources.add_resource(resource_type, amount)
 
 var _bottle_grid: Array[Array]
 var _bottle_grid_size:
@@ -107,19 +147,33 @@ func has_tile(tile_pos: Vector2i) -> bool:
 ## Check the resources in the cell and fire events for tiles that need updating
 func update_tiles() -> void:
   update_resources()
-  var water = resources.get_resource(ResourcePool.ResourceType.WATER)
-  if water.amount <= 0:
-    tile_requested_update.emit(_tiles.bottom_left, ResourcePool.ResourceType.VACCUUM)
-    tile_requested_update.emit(_tiles.bottom_right, ResourcePool.ResourceType.VACCUUM)
-  if water.amount > 0:
-    tile_requested_update.emit(_tiles.bottom_left, ResourcePool.ResourceType.WATER)
-    tile_requested_update.emit(_tiles.bottom_right, ResourcePool.ResourceType.WATER)
-  if water.amount <= 50:
-    tile_requested_update.emit(_tiles.top_left, ResourcePool.ResourceType.VACCUUM)
-    tile_requested_update.emit(_tiles.top_right, ResourcePool.ResourceType.VACCUUM)
-  if water.amount >= 75:
-    tile_requested_update.emit(_tiles.top_left, ResourcePool.ResourceType.WATER)
-    tile_requested_update.emit(_tiles.top_right, ResourcePool.ResourceType.WATER)
+  var water = resources.get_resource(ResourcePool.ResourceType.WATER).amount
+  var nutrients = resources.get_resource(ResourcePool.ResourceType.NUTRIENTS).amount
+  var tiles = {
+    "tl": ResourcePool.ResourceType.VACCUUM,
+    "tr": ResourcePool.ResourceType.VACCUUM,
+    "bl": ResourcePool.ResourceType.VACCUUM,
+    "br": ResourcePool.ResourceType.VACCUUM
+  }
+  tiles["tl"] = ResourcePool.ResourceType.VACCUUM
+  tiles["tr"] = ResourcePool.ResourceType.VACCUUM
+  tiles["bl"] = ResourcePool.ResourceType.VACCUUM
+  tiles["br"] = ResourcePool.ResourceType.VACCUUM
+  if water > 0:
+    tiles["bl"] = ResourcePool.ResourceType.WATER
+    tiles["br"] = ResourcePool.ResourceType.WATER
+  if water > RESOURCE_LIMIT / 2:
+    tiles["tl"] = ResourcePool.ResourceType.WATER
+    tiles["tr"] = ResourcePool.ResourceType.WATER
+  if nutrients > 0:
+    print(self, resources)
+    tiles["tl"] = ResourcePool.ResourceType.NUTRIENTS
+    tiles["tr"] = ResourcePool.ResourceType.NUTRIENTS
+  
+  tile_requested_update.emit(_tiles.top_left, tiles["tl"])
+  tile_requested_update.emit(_tiles.top_right, tiles["tr"])
+  tile_requested_update.emit(_tiles.bottom_left, tiles["bl"])
+  tile_requested_update.emit(_tiles.bottom_right, tiles["br"])
 
 var _neighbors: Neighbors = Neighbors.new()
 var neighbors:

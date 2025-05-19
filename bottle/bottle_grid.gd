@@ -33,7 +33,7 @@ func debug_resources(cell):
   if cell.cell_coords.y < 5:
     cell.resources.set_resource(ResourcePool.ResourceType.WATER, 100)
   if cell.cell_coords.y == 5:
-    cell.resources.set_resource(ResourcePool.ResourceType.WATER, 75)
+    cell.resources.set_resource(ResourcePool.ResourceType.NUTRIENTS, 75)
 
 func _input(event):
   debug_mouseclick(event)
@@ -50,14 +50,14 @@ func debug_mouseclick(event: InputEvent) -> void:
     var cell = get_cell(tile_pos)
 
   # Trigger update_cells on right click (button_index 2 is right mouse button)
-  # if event.button_index == MOUSE_BUTTON_RIGHT:
-  #   update_cells()
+  if event.button_index == MOUSE_BUTTON_RIGHT:
+    update_cells()
 
 func get_cell(tile_pos: Vector2i) -> BottleCell:
   for col in cell_grid_columns:
     for cell: BottleCell in col:
       if cell.has_tile(tile_pos):
-        print(cell.resources.get_resource(ResourcePool.ResourceType.WATER).amount)
+        print(cell.resources)
         return cell
   return null
 
@@ -70,9 +70,11 @@ func _on_tile_requested_update(tile_pos: Vector2i, resource: ResourcePool.Resour
   var atlas_coords = {
     ResourcePool.ResourceType.WATER: Vector2i(0, 0),
     ResourcePool.ResourceType.VACCUUM: Vector2i(-1, -1),
+    ResourcePool.ResourceType.NUTRIENTS: Vector2i(4, 0),
   }
   self.set_cell(tile_pos, tile_set.get_source_id(0), atlas_coords[resource])
 
 func _on_sim_timer_timeout() -> void:
-  print("tick")
-  update_cells()
+  pass
+  # print("tick")
+  # update_cells()
