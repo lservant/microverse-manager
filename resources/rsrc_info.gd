@@ -1,7 +1,7 @@
 extends Resource
 class_name RsrcInfo
 
-@export var resource_type: RsrcPool.ResourceType
+@export var resource_type: RsrcPool.RsrcType
 @export var amount: int = 0
 
 var name:

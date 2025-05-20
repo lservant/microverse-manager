@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="ResourcePool" load_steps=4 format=3 uid="uid://8qo068e14i05"]
+[gd_resource type="Resource" script_class="RsrcPool" load_steps=4 format=3 uid="uid://8qo068e14i05"]
 
 [ext_resource type="Script" uid="uid://b7r86r6yi72hq" path="res://resources/rsrc_pool.gd" id="1_rlq74"]
 [ext_resource type="Script" uid="uid://bhsmxn7nbiean" path="res://resources/rsrc_info.gd" id="1_ry5ng"]

@@ -17,7 +17,7 @@ func add_label(abbr, amount) -> void:
   resources[abbr] = label
   update_label(abbr, amount)
 
-func _on_resource_changed(resource_type: RsrcPool.ResourceType, _previous_amount: int, new_amount: int) -> void:
+func _on_resource_changed(resource_type: RsrcPool.RsrcType, _previous_amount: int, new_amount: int) -> void:
   update_label(RsrcPool.get_resource_abbreviation(resource_type), new_amount)
 
 func update_label(abbr, new_amount: int) -> void:
