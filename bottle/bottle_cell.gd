@@ -5,52 +5,24 @@ signal tile_requested_update(tile_pos: Vector2i, resource: RsrcPool.RsrcType)
 
 var resources: RsrcPool = RsrcPool.new()
 const RESOURCE_LIMIT: int = 100
+var rsrc_behaviors: Dictionary = {
+  RsrcPool.RsrcType.WATER: Water,
+  RsrcPool.RsrcType.NUTRIENTS: Nutrients,
+  RsrcPool.RsrcType.ORGANICS: Organics,
+  RsrcPool.RsrcType.SUNLIGHT: null,
+  RsrcPool.RsrcType.OXYGEN: null,
+  RsrcPool.RsrcType.CARBON_DIOXIDE: null,
+  RsrcPool.RsrcType.VACCUUM: null
+}
 
 func update_resources() -> void:
-  move_water()
-  move_nutrients()
-  move_organics()
-
-func move_water() -> void:
-  var water = resources.get_resource(RsrcPool.RsrcType.WATER)
-  if water.is_empty():
-    return
-
-  var was_lifted = false
-  if water.amount > RESOURCE_LIMIT or \
-  (not is_bottom() and neighbors.bottom.resources.get_resource(RsrcPool.RsrcType.WATER).amount >= RESOURCE_LIMIT):
-    was_lifted = lift_resource(RsrcPool.RsrcType.WATER)
-  
-  var was_dropped = drop_resource(RsrcPool.RsrcType.WATER)
-  if water.amount < 3:
-    return
-  spill_resource(RsrcPool.RsrcType.WATER)
-
-func move_nutrients() -> void:
-  var nuts = resources.get_resource(RsrcPool.RsrcType.NUTRIENTS)
-  var water = resources.get_resource(RsrcPool.RsrcType.WATER)
-  if nuts.is_empty():
-    return
-
-  var was_lifted = false
-  if water.amount >= RESOURCE_LIMIT or \
-  (not is_top() and neighbors.top.resources.get_resource(RsrcPool.RsrcType.WATER).amount > 0):
-    was_lifted = lift_resource(RsrcPool.RsrcType.NUTRIENTS)
-
-  var was_dropped = false
-  if water.is_empty():
-    was_dropped = drop_resource(RsrcPool.RsrcType.NUTRIENTS)
-  
-  spill_resource(RsrcPool.RsrcType.NUTRIENTS)
-
-func move_organics() -> void:
-  var organics = resources.get_resource(RsrcPool.RsrcType.ORGANICS)
-  if organics.is_empty():
-    return
-  var was_dropped = drop_resource(RsrcPool.RsrcType.ORGANICS)
-  if organics.amount < 50:
-    return
-  spill_resource(RsrcPool.RsrcType.ORGANICS)
+  for resource in resources.resources:
+    if rsrc_behaviors.has(resource.resource_type):
+      var behavior = rsrc_behaviors[resource.resource_type]
+      if behavior != null:
+        behavior.move(self)
+      else:
+        Rsrc.move(self)
 
 func spill_resource(resource_type: RsrcPool.RsrcType) -> void:
   var rsrc = resources.get_resource(resource_type)
