@@ -3,7 +3,7 @@
 [ext_resource type="Script" uid="uid://be8bnqd03arc3" path="res://bottle/bottle_scene.gd" id="1_lie65"]
 [ext_resource type="Texture2D" uid="uid://dfvfkps25yerv" path="res://assets/microverse-manager-design.png" id="2_ew3lf"]
 [ext_resource type="Texture2D" uid="uid://d3it8iujbbm4d" path="res://assets/bottle-tiles.png" id="3_p1tlr"]
-[ext_resource type="Script" uid="uid://cc28n4jvci3d1" path="res://resources/resource_manager.gd" id="3_tid1i"]
+[ext_resource type="Script" uid="uid://cc28n4jvci3d1" path="res://resources/rsrc_manager.gd" id="3_tid1i"]
 [ext_resource type="Script" uid="uid://dxyp5rsttktua" path="res://bottle/bottle_grid.gd" id="4_dxah3"]
 [ext_resource type="Resource" uid="uid://8qo068e14i05" path="res://resources/pools/starter.tres" id="4_tid1i"]
 [ext_resource type="PackedScene" uid="uid://br86804n3me47" path="res://ui/resource_list.tscn" id="5_ew3lf"]

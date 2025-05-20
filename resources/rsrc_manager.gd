@@ -1,5 +1,5 @@
 extends Node
-class_name ResourceManager
+class_name RsrcManager
 
 signal resource_changed(resource_type: RsrcPool.ResourceType, previous_amount: int, new_amount: int)
 signal tile_requested_update(tile_pos: Vector2i, resource: RsrcPool.ResourceType)

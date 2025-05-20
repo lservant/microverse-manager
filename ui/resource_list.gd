@@ -1,7 +1,7 @@
 extends FlowContainer
 class_name ResourceList
 
-@export var resource_manager: ResourceManager
+@export var resource_manager: RsrcManager
 
 var resources: Dictionary = {}
 

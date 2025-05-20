@@ -1,6 +1,6 @@
 extends Node2D
 
-@export var resources : ResourceManager
+@export var resources : RsrcManager
 
 func _ready() -> void:
   pass

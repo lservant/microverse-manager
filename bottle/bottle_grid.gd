@@ -1,7 +1,7 @@
 extends TileMapLayer
 class_name BottleGrid
 
-@export var resource_manager: ResourceManager
+@export var resource_manager: RsrcManager
 
 func _ready() -> void:
   # Connect the signal from the resource manager to this class
