@@ -13,11 +13,15 @@ func update_resources() -> void:
 
 func move_water() -> void:
   var water = resources.get_resource(ResourcePool.ResourceType.WATER)
-  if water.amount == 0:
+  if water.is_empty():
     return
-  var was_dropped = false
-  if not is_bottom():
-    was_dropped = drop_resource(ResourcePool.ResourceType.WATER)
+
+  var was_lifted = false
+  if water.amount > RESOURCE_LIMIT or \
+  (not is_bottom() and neighbors.bottom.resources.get_resource(ResourcePool.ResourceType.WATER).amount >= RESOURCE_LIMIT):
+    was_lifted = lift_resource(ResourcePool.ResourceType.WATER)
+  
+  var was_dropped = drop_resource(ResourcePool.ResourceType.WATER)
   if water.amount < 3:
     return
   spill_resource(ResourcePool.ResourceType.WATER)
@@ -25,68 +29,66 @@ func move_water() -> void:
 func move_nutrients() -> void:
   var nuts = resources.get_resource(ResourcePool.ResourceType.NUTRIENTS)
   var water = resources.get_resource(ResourcePool.ResourceType.WATER)
-  if nuts.amount == 0:
+  if nuts.is_empty():
     return
 
   var was_lifted = false
   if water.amount >= RESOURCE_LIMIT or \
-  (neighbors.top != null and neighbors.top.resources.get_resource(ResourcePool.ResourceType.WATER).amount > 0):
-    print("trying to lift nutrients at ", cell_coords)
+  (not is_top() and neighbors.top.resources.get_resource(ResourcePool.ResourceType.WATER).amount > 0):
     was_lifted = lift_resource(ResourcePool.ResourceType.NUTRIENTS)
 
   var was_dropped = false
-  if not is_bottom() and water.amount <= 0:
-      was_dropped = drop_resource(ResourcePool.ResourceType.NUTRIENTS)
+  if water.is_empty():
+    was_dropped = drop_resource(ResourcePool.ResourceType.NUTRIENTS)
   
-  if nuts.amount == 0:
-    return
   spill_resource(ResourcePool.ResourceType.NUTRIENTS)
 
 func move_organics() -> void:
   var organics = resources.get_resource(ResourcePool.ResourceType.ORGANICS)
-  if organics.amount == 0:
+  if organics.is_empty():
     return
-  var was_dropped = false
-  if not is_bottom():
-    was_dropped = drop_resource(ResourcePool.ResourceType.ORGANICS)
+  var was_dropped = drop_resource(ResourcePool.ResourceType.ORGANICS)
   if organics.amount < 50:
     return
   spill_resource(ResourcePool.ResourceType.ORGANICS)
 
 func spill_resource(resource_type: ResourcePool.ResourceType) -> void:
   var rsrc = resources.get_resource(resource_type)
-
-  if neighbors.left != null and neighbors.right != null:
+  if rsrc.is_empty():
+    return
+  if not is_left() and not is_right():
     var left_rsrc = neighbors.left.resources.get_resource(resource_type)
     var right_rsrc = neighbors.right.resources.get_resource(resource_type)
     var total: int = left_rsrc.amount + right_rsrc.amount + rsrc.amount
     var avg: int = total / 3
-    # print("Left: %s, Right: %s, Avg: %s" % [left_rsrc.amount, right_rsrc.amount, avg])
+    
     if left_rsrc.amount < RESOURCE_LIMIT and left_rsrc.amount < avg:
-      var amount_to_move = avg - left_rsrc.amount
+      var amount_to_move = min(RESOURCE_LIMIT, avg - left_rsrc.amount)
       if amount_to_move <= rsrc.amount:
         move_resource(resource_type, amount_to_move, neighbors.left)
     if right_rsrc.amount < RESOURCE_LIMIT and right_rsrc.amount < avg:
-      var amount_to_move = avg - right_rsrc.amount
+      var amount_to_move = min(RESOURCE_LIMIT, avg - right_rsrc.amount)
       if amount_to_move <= rsrc.amount:
         move_resource(resource_type, amount_to_move, neighbors.right)
 
-  elif neighbors.left != null:
+  elif not is_left():
     var left_rsrc = neighbors.left.resources.get_resource(resource_type)
     spill_one_side(left_rsrc, rsrc, neighbors.left)
 
-  elif neighbors.right != null:
+  elif not is_right():
     var right_rsrc = neighbors.right.resources.get_resource(resource_type)
     spill_one_side(right_rsrc, rsrc, neighbors.right)
 
 func spill_one_side(side_rsrc: ResourceInfo, rsrc: ResourceInfo, neighbor: BottleCell) -> void:
   if side_rsrc.amount < RESOURCE_LIMIT && side_rsrc.amount < rsrc.amount:
     var total: int = side_rsrc.amount + rsrc.amount
-    var amount_to_move = total / 2 - side_rsrc.amount
+    var amount_to_move = min(RESOURCE_LIMIT, total / 2 - side_rsrc.amount)
     if amount_to_move <= rsrc.amount:
       move_resource(rsrc.resource_type, amount_to_move, neighbor)
 
 func drop_resource(resource_type: ResourcePool.ResourceType) -> bool:
+  if is_bottom():
+    return false
   var rsrc = resources.get_resource(resource_type)
   var bottom_rsrc = neighbors.bottom.resources.get_resource(resource_type)
   if bottom_rsrc.amount >= RESOURCE_LIMIT:
@@ -98,20 +100,15 @@ func drop_resource(resource_type: ResourcePool.ResourceType) -> bool:
   return true
 
 func lift_resource(resource_type: ResourcePool.ResourceType) -> bool:
-  var rsrc = resources.get_resource(resource_type)
-  if rsrc.amount <= 0:
-    print("No resources to lift")
+  if is_top():
     return false
-  if neighbors.top == null:
-    print("No top neighbor to lift to")
+  var rsrc = resources.get_resource(resource_type)
+  if rsrc.is_empty():
     return false
   var top_rsrc = neighbors.top.resources.get_resource(resource_type)
   if top_rsrc.amount >= RESOURCE_LIMIT:
-    print("Top neighbor is full")
     return false
-  var amount_to_move = RESOURCE_LIMIT - top_rsrc.amount
-  if amount_to_move > rsrc.amount:
-    amount_to_move = rsrc.amount
+  var amount_to_move = min(rsrc.amount, RESOURCE_LIMIT - top_rsrc.amount)
   move_resource(resource_type, amount_to_move, neighbors.top)
   neighbors.top.update_tiles()
   return true
@@ -179,13 +176,14 @@ func update_tiles() -> void:
     tiles["tl"] = ResourcePool.ResourceType.WATER
     tiles["tr"] = ResourcePool.ResourceType.WATER
   if nutrients > 0:
-    print(self, resources)
     tiles["tl"] = ResourcePool.ResourceType.NUTRIENTS
     tiles["tr"] = ResourcePool.ResourceType.NUTRIENTS
   if organics > 0:
     tiles["bl"] = ResourcePool.ResourceType.ORGANICS
     tiles["br"] = ResourcePool.ResourceType.ORGANICS
-  
+  if water > RESOURCE_LIMIT:
+    tiles["bl"] = ResourcePool.ResourceType.VACCUUM
+    tiles["br"] = ResourcePool.ResourceType.VACCUUM
   tile_requested_update.emit(_tiles.top_left, tiles["tl"])
   tile_requested_update.emit(_tiles.top_right, tiles["tr"])
   tile_requested_update.emit(_tiles.bottom_left, tiles["bl"])
@@ -268,3 +266,9 @@ static func create(bottle_grid: Array[Array], tl_tile: Vector2i, tile_offset: Ve
   cell._tiles.bottom_right = Vector2i(tl_tile.x + 1, tl_tile.y + 1) + tile_offset
   cell.cell_coords = tl_tile / 2
   return cell
+
+func is_within_range(tl: Vector2i, br: Vector2i = tl) -> bool:
+  return coords.x >= tl.x and \
+         coords.x <= br.x and \
+         coords.y >= tl.y and \
+         coords.y <= br.y

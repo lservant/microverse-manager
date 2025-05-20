@@ -26,3 +26,6 @@ func add(value):
 func subtract(value):
   amount -= value
   return self
+
+func is_empty() -> bool:
+  return amount <= 0
