@@ -1,15 +1,15 @@
 extends Resource
 class_name ResourceInfo
 
-@export var resource_type: ResourcePool.ResourceType
+@export var resource_type: RsrcPool.ResourceType
 @export var amount: int = 0
 
 var name:
   get:
-    return ResourcePool.get_resource_name(resource_type)
+    return RsrcPool.get_resource_name(resource_type)
 var abbreviation:
   get:
-    return ResourcePool.get_resource_abbreviation(resource_type)
+    return RsrcPool.get_resource_abbreviation(resource_type)
 
 func _operator_add(value):
   var result = self.duplicate()

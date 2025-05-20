@@ -1,9 +1,9 @@
 extends Resource
 class_name BottleCell
 
-signal tile_requested_update(tile_pos: Vector2i, resource: ResourcePool.ResourceType)
+signal tile_requested_update(tile_pos: Vector2i, resource: RsrcPool.ResourceType)
 
-var resources: ResourcePool = ResourcePool.new()
+var resources: RsrcPool = RsrcPool.new()
 const RESOURCE_LIMIT: int = 100
 
 func update_resources() -> void:
@@ -12,47 +12,47 @@ func update_resources() -> void:
   move_organics()
 
 func move_water() -> void:
-  var water = resources.get_resource(ResourcePool.ResourceType.WATER)
+  var water = resources.get_resource(RsrcPool.ResourceType.WATER)
   if water.is_empty():
     return
 
   var was_lifted = false
   if water.amount > RESOURCE_LIMIT or \
-  (not is_bottom() and neighbors.bottom.resources.get_resource(ResourcePool.ResourceType.WATER).amount >= RESOURCE_LIMIT):
-    was_lifted = lift_resource(ResourcePool.ResourceType.WATER)
+  (not is_bottom() and neighbors.bottom.resources.get_resource(RsrcPool.ResourceType.WATER).amount >= RESOURCE_LIMIT):
+    was_lifted = lift_resource(RsrcPool.ResourceType.WATER)
   
-  var was_dropped = drop_resource(ResourcePool.ResourceType.WATER)
+  var was_dropped = drop_resource(RsrcPool.ResourceType.WATER)
   if water.amount < 3:
     return
-  spill_resource(ResourcePool.ResourceType.WATER)
+  spill_resource(RsrcPool.ResourceType.WATER)
 
 func move_nutrients() -> void:
-  var nuts = resources.get_resource(ResourcePool.ResourceType.NUTRIENTS)
-  var water = resources.get_resource(ResourcePool.ResourceType.WATER)
+  var nuts = resources.get_resource(RsrcPool.ResourceType.NUTRIENTS)
+  var water = resources.get_resource(RsrcPool.ResourceType.WATER)
   if nuts.is_empty():
     return
 
   var was_lifted = false
   if water.amount >= RESOURCE_LIMIT or \
-  (not is_top() and neighbors.top.resources.get_resource(ResourcePool.ResourceType.WATER).amount > 0):
-    was_lifted = lift_resource(ResourcePool.ResourceType.NUTRIENTS)
+  (not is_top() and neighbors.top.resources.get_resource(RsrcPool.ResourceType.WATER).amount > 0):
+    was_lifted = lift_resource(RsrcPool.ResourceType.NUTRIENTS)
 
   var was_dropped = false
   if water.is_empty():
-    was_dropped = drop_resource(ResourcePool.ResourceType.NUTRIENTS)
+    was_dropped = drop_resource(RsrcPool.ResourceType.NUTRIENTS)
   
-  spill_resource(ResourcePool.ResourceType.NUTRIENTS)
+  spill_resource(RsrcPool.ResourceType.NUTRIENTS)
 
 func move_organics() -> void:
-  var organics = resources.get_resource(ResourcePool.ResourceType.ORGANICS)
+  var organics = resources.get_resource(RsrcPool.ResourceType.ORGANICS)
   if organics.is_empty():
     return
-  var was_dropped = drop_resource(ResourcePool.ResourceType.ORGANICS)
+  var was_dropped = drop_resource(RsrcPool.ResourceType.ORGANICS)
   if organics.amount < 50:
     return
-  spill_resource(ResourcePool.ResourceType.ORGANICS)
+  spill_resource(RsrcPool.ResourceType.ORGANICS)
 
-func spill_resource(resource_type: ResourcePool.ResourceType) -> void:
+func spill_resource(resource_type: RsrcPool.ResourceType) -> void:
   var rsrc = resources.get_resource(resource_type)
   if rsrc.is_empty():
     return
@@ -86,7 +86,7 @@ func spill_one_side(side_rsrc: ResourceInfo, rsrc: ResourceInfo, neighbor: Bottl
     if amount_to_move <= rsrc.amount:
       move_resource(rsrc.resource_type, amount_to_move, neighbor)
 
-func drop_resource(resource_type: ResourcePool.ResourceType) -> bool:
+func drop_resource(resource_type: RsrcPool.ResourceType) -> bool:
   if is_bottom():
     return false
   var rsrc = resources.get_resource(resource_type)
@@ -99,7 +99,7 @@ func drop_resource(resource_type: ResourcePool.ResourceType) -> bool:
   move_resource(resource_type, amount_to_move, neighbors.bottom)
   return true
 
-func lift_resource(resource_type: ResourcePool.ResourceType) -> bool:
+func lift_resource(resource_type: RsrcPool.ResourceType) -> bool:
   if is_top():
     return false
   var rsrc = resources.get_resource(resource_type)
@@ -114,7 +114,7 @@ func lift_resource(resource_type: ResourcePool.ResourceType) -> bool:
   return true
 
 ## Moves the given amount of resource from this cell to the destination cell.
-func move_resource(resource_type: ResourcePool.ResourceType, amount: int, destination_cell: BottleCell) -> void:
+func move_resource(resource_type: RsrcPool.ResourceType, amount: int, destination_cell: BottleCell) -> void:
   if amount <= 0:
     return
   if resources.remove_resource(resource_type, amount):
@@ -156,34 +156,34 @@ func has_tile(tile_pos: Vector2i) -> bool:
 ## Check the resources in the cell and fire events for tiles that need updating
 func update_tiles() -> void:
   update_resources()
-  var water = resources.get_resource(ResourcePool.ResourceType.WATER).amount
-  var nutrients = resources.get_resource(ResourcePool.ResourceType.NUTRIENTS).amount
-  var organics = resources.get_resource(ResourcePool.ResourceType.ORGANICS).amount
+  var water = resources.get_resource(RsrcPool.ResourceType.WATER).amount
+  var nutrients = resources.get_resource(RsrcPool.ResourceType.NUTRIENTS).amount
+  var organics = resources.get_resource(RsrcPool.ResourceType.ORGANICS).amount
   var tiles = {
-    "tl": ResourcePool.ResourceType.VACCUUM,
-    "tr": ResourcePool.ResourceType.VACCUUM,
-    "bl": ResourcePool.ResourceType.VACCUUM,
-    "br": ResourcePool.ResourceType.VACCUUM
+    "tl": RsrcPool.ResourceType.VACCUUM,
+    "tr": RsrcPool.ResourceType.VACCUUM,
+    "bl": RsrcPool.ResourceType.VACCUUM,
+    "br": RsrcPool.ResourceType.VACCUUM
   }
-  tiles["tl"] = ResourcePool.ResourceType.VACCUUM
-  tiles["tr"] = ResourcePool.ResourceType.VACCUUM
-  tiles["bl"] = ResourcePool.ResourceType.VACCUUM
-  tiles["br"] = ResourcePool.ResourceType.VACCUUM
+  tiles["tl"] = RsrcPool.ResourceType.VACCUUM
+  tiles["tr"] = RsrcPool.ResourceType.VACCUUM
+  tiles["bl"] = RsrcPool.ResourceType.VACCUUM
+  tiles["br"] = RsrcPool.ResourceType.VACCUUM
   if water > 0:
-    tiles["bl"] = ResourcePool.ResourceType.WATER
-    tiles["br"] = ResourcePool.ResourceType.WATER
+    tiles["bl"] = RsrcPool.ResourceType.WATER
+    tiles["br"] = RsrcPool.ResourceType.WATER
   if water > RESOURCE_LIMIT / 2:
-    tiles["tl"] = ResourcePool.ResourceType.WATER
-    tiles["tr"] = ResourcePool.ResourceType.WATER
+    tiles["tl"] = RsrcPool.ResourceType.WATER
+    tiles["tr"] = RsrcPool.ResourceType.WATER
   if nutrients > 0:
-    tiles["tl"] = ResourcePool.ResourceType.NUTRIENTS
-    tiles["tr"] = ResourcePool.ResourceType.NUTRIENTS
+    tiles["tl"] = RsrcPool.ResourceType.NUTRIENTS
+    tiles["tr"] = RsrcPool.ResourceType.NUTRIENTS
   if organics > 0:
-    tiles["bl"] = ResourcePool.ResourceType.ORGANICS
-    tiles["br"] = ResourcePool.ResourceType.ORGANICS
+    tiles["bl"] = RsrcPool.ResourceType.ORGANICS
+    tiles["br"] = RsrcPool.ResourceType.ORGANICS
   if water > RESOURCE_LIMIT:
-    tiles["bl"] = ResourcePool.ResourceType.VACCUUM
-    tiles["br"] = ResourcePool.ResourceType.VACCUUM
+    tiles["bl"] = RsrcPool.ResourceType.VACCUUM
+    tiles["br"] = RsrcPool.ResourceType.VACCUUM
   tile_requested_update.emit(_tiles.top_left, tiles["tl"])
   tile_requested_update.emit(_tiles.top_right, tiles["tr"])
   tile_requested_update.emit(_tiles.bottom_left, tiles["bl"])

@@ -30,11 +30,11 @@ func debug_mouseclick(event: InputEvent) -> void:
   if event.button_index == MOUSE_BUTTON_RIGHT:
     resource_manager.update_cells()
 
-func _on_tile_requested_update(tile_pos: Vector2i, resource: ResourcePool.ResourceType) -> void:
+func _on_tile_requested_update(tile_pos: Vector2i, resource: RsrcPool.ResourceType) -> void:
   var atlas_coords = {
-    ResourcePool.ResourceType.WATER: Vector2i(0, 0),
-    ResourcePool.ResourceType.VACCUUM: Vector2i(-1, -1),
-    ResourcePool.ResourceType.NUTRIENTS: Vector2i(4, 0),
-    ResourcePool.ResourceType.ORGANICS: Vector2i(6, 0),
+    RsrcPool.ResourceType.WATER: Vector2i(0, 0),
+    RsrcPool.ResourceType.VACCUUM: Vector2i(-1, -1),
+    RsrcPool.ResourceType.NUTRIENTS: Vector2i(4, 0),
+    RsrcPool.ResourceType.ORGANICS: Vector2i(6, 0),
   }
   self.set_cell(tile_pos, tile_set.get_source_id(0), atlas_coords[resource])

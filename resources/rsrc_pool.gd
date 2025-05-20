@@ -1,6 +1,6 @@
 extends Resource
 ## Collects and describes resources.
-class_name ResourcePool
+class_name RsrcPool
 
 signal resource_changed(resource_type: ResourceType, previous_amount: int, new_amount: int)
 
@@ -58,7 +58,7 @@ func set_resource(resource_type: ResourceType, amount: int) -> void:
 
 ## Adds amount of given resource type to the _resources pool.
 ## If the resource type does not exist, it will be created.
-func add_resource(resource_type: ResourcePool.ResourceType, amount: int) -> void:
+func add_resource(resource_type: ResourceType, amount: int) -> void:
   var previous_amount = get_resource(resource_type).amount
   set_resource(resource_type, previous_amount + amount)
   var new_amount = get_resource(resource_type).amount
@@ -66,7 +66,7 @@ func add_resource(resource_type: ResourcePool.ResourceType, amount: int) -> void
 
 ## Removes amount of given resource type from the _resources pool. Returning true if successful.
 ## If the resource type does not exist or the amount to remove is greater than the current amount, it will return false.
-func remove_resource(resource_type: ResourcePool.ResourceType, amount: int) -> bool:
+func remove_resource(resource_type: ResourceType, amount: int) -> bool:
   var current = get_resource(resource_type).amount
   if amount > current:
     return false
@@ -77,7 +77,7 @@ func remove_resource(resource_type: ResourcePool.ResourceType, amount: int) -> b
   return true
 
 ## Empties the resource pool of the given resource type and returns the amount removed.
-func empty_resource(resource_type: ResourcePool.ResourceType) -> int:
+func empty_resource(resource_type: ResourceType) -> int:
   var resource = get_resource(resource_type)
   if resource:
     var amount = resource.amount
