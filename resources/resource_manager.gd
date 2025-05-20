@@ -43,7 +43,7 @@ func get_resource(resource_type: RsrcPool.ResourceType) -> int:
   return resource_pool.get_resource(resource_type).amount
 
 ## Returns current resources in the resource pool.
-func get_resources() -> Array[ResourceInfo]:
+func get_resources() -> Array[RsrcInfo]:
   return resource_pool.resources
 
 func _on_resource_changed(resource_type: RsrcPool.ResourceType, previous_amount: int, new_amount: int) -> void:

@@ -34,15 +34,15 @@ const RESOURCE_TYPE_ABBREVIATIONS = {
   ResourceType.VACCUUM: "VAC",
 }
 
-@export var resources: Array[ResourceInfo]
+@export var resources: Array[RsrcInfo]
 
 
 ## Gets the amount of the given resource type in the resource pool.
-func get_resource(resource_type: ResourceType) -> ResourceInfo:
+func get_resource(resource_type: ResourceType) -> RsrcInfo:
   for resource in resources:
     if resource.resource_type == resource_type:
       return resource
-  return ResourceInfo.new()
+  return RsrcInfo.new()
 
 ## Sets the amount of the given resource type in the resource pool.
 ## If the resource type does not exist, it will be created.
@@ -51,7 +51,7 @@ func set_resource(resource_type: ResourceType, amount: int) -> void:
     if resource.resource_type == resource_type:
       resource.amount = amount
       return
-  var new_resource = ResourceInfo.new()
+  var new_resource = RsrcInfo.new()
   new_resource.resource_type = resource_type
   new_resource.amount = amount
   resources.append(new_resource)

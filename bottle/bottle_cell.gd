@@ -79,7 +79,7 @@ func spill_resource(resource_type: RsrcPool.ResourceType) -> void:
     var right_rsrc = neighbors.right.resources.get_resource(resource_type)
     spill_one_side(right_rsrc, rsrc, neighbors.right)
 
-func spill_one_side(side_rsrc: ResourceInfo, rsrc: ResourceInfo, neighbor: BottleCell) -> void:
+func spill_one_side(side_rsrc: RsrcInfo, rsrc: RsrcInfo, neighbor: BottleCell) -> void:
   if side_rsrc.amount < RESOURCE_LIMIT && side_rsrc.amount < rsrc.amount:
     var total: int = side_rsrc.amount + rsrc.amount
     var amount_to_move = min(RESOURCE_LIMIT, total / 2 - side_rsrc.amount)
