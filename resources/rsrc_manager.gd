@@ -62,6 +62,8 @@ func build_cell_grid() -> void:
 func debug_resources(cell):
   if cell.cell_coords.x < 10:
     cell.resources.set_resource(RsrcPool.RsrcType.WATER, 100)
+    cell.resources.add_resource(RsrcPool.RsrcType.OXYGEN, 50)
+    cell.resources.add_resource(RsrcPool.RsrcType.CARBON_DIOXIDE, 50)
   if cell.cell_coords.y == 5:
     cell.resources.set_resource(RsrcPool.RsrcType.NUTRIENTS, 75)
     cell.resources.set_resource(RsrcPool.RsrcType.ORGANICS, 50)

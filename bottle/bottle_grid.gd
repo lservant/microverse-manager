@@ -32,9 +32,12 @@ func debug_mouseclick(event: InputEvent) -> void:
 
 func _on_tile_requested_update(tile_pos: Vector2i, resource: RsrcPool.RsrcType) -> void:
   var atlas_coords = {
-    RsrcPool.RsrcType.WATER: Vector2i(0, 0),
-    RsrcPool.RsrcType.VACCUUM: Vector2i(-1, -1),
-    RsrcPool.RsrcType.NUTRIENTS: Vector2i(4, 0),
-    RsrcPool.RsrcType.ORGANICS: Vector2i(6, 0),
+    RsrcPool.RsrcType.WATER: Vector2i(1, 0),
+    RsrcPool.RsrcType.VACCUUM: Vector2i(0, 0),
+    RsrcPool.RsrcType.NUTRIENTS: Vector2i(3, 0),
+    RsrcPool.RsrcType.ORGANICS: Vector2i(4, 0),
+    RsrcPool.RsrcType.OXYGEN: Vector2i(0, 1),
+    RsrcPool.RsrcType.CARBON_DIOXIDE: Vector2i(1, 1),
+
   }
   self.set_cell(tile_pos, tile_set.get_source_id(0), atlas_coords[resource])

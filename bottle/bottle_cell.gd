@@ -9,9 +9,8 @@ var rsrc_behaviors: Dictionary = {
   RsrcPool.RsrcType.WATER: Water,
   RsrcPool.RsrcType.NUTRIENTS: Nutrients,
   RsrcPool.RsrcType.ORGANICS: Organics,
-  RsrcPool.RsrcType.SUNLIGHT: null,
-  RsrcPool.RsrcType.OXYGEN: null,
-  RsrcPool.RsrcType.CARBON_DIOXIDE: null,
+  RsrcPool.RsrcType.OXYGEN: Oxygen,
+  RsrcPool.RsrcType.CARBON_DIOXIDE: CarbonDioxide,
   RsrcPool.RsrcType.VACCUUM: null
 }
 
@@ -131,6 +130,9 @@ func update_tiles() -> void:
   var water = resources.get_resource(RsrcPool.RsrcType.WATER).amount
   var nutrients = resources.get_resource(RsrcPool.RsrcType.NUTRIENTS).amount
   var organics = resources.get_resource(RsrcPool.RsrcType.ORGANICS).amount
+  var oxygen = resources.get_resource(RsrcPool.RsrcType.OXYGEN).amount
+  var carbon_dioxide = resources.get_resource(RsrcPool.RsrcType.CARBON_DIOXIDE).amount
+
   var tiles = {
     "tl": RsrcPool.RsrcType.VACCUUM,
     "tr": RsrcPool.RsrcType.VACCUUM,
@@ -141,21 +143,41 @@ func update_tiles() -> void:
   tiles["tr"] = RsrcPool.RsrcType.VACCUUM
   tiles["bl"] = RsrcPool.RsrcType.VACCUUM
   tiles["br"] = RsrcPool.RsrcType.VACCUUM
+  
+  if oxygen > 0:
+    tiles["tl"] = RsrcPool.RsrcType.OXYGEN
+    tiles["tr"] = RsrcPool.RsrcType.OXYGEN
+    if oxygen > RESOURCE_LIMIT / 2:
+      tiles["bl"] = RsrcPool.RsrcType.OXYGEN
+      tiles["br"] = RsrcPool.RsrcType.OXYGEN
+  elif carbon_dioxide > 0:
+    tiles["bl"] = RsrcPool.RsrcType.CARBON_DIOXIDE
+    tiles["br"] = RsrcPool.RsrcType.CARBON_DIOXIDE
+    if carbon_dioxide > RESOURCE_LIMIT / 2:
+      tiles["tl"] = RsrcPool.RsrcType.CARBON_DIOXIDE
+      tiles["tr"] = RsrcPool.RsrcType.CARBON_DIOXIDE
+
   if water > 0:
     tiles["bl"] = RsrcPool.RsrcType.WATER
-    tiles["br"] = RsrcPool.RsrcType.WATER
+    if carbon_dioxide == 0:
+      tiles["br"] = RsrcPool.RsrcType.WATER
   if water > RESOURCE_LIMIT / 2:
     tiles["tl"] = RsrcPool.RsrcType.WATER
-    tiles["tr"] = RsrcPool.RsrcType.WATER
+    if oxygen == 0:
+      tiles["tr"] = RsrcPool.RsrcType.WATER
+
   if nutrients > 0:
     tiles["tl"] = RsrcPool.RsrcType.NUTRIENTS
-    tiles["tr"] = RsrcPool.RsrcType.NUTRIENTS
+    if oxygen == 0:
+      tiles["tr"] = RsrcPool.RsrcType.NUTRIENTS
   if organics > 0:
     tiles["bl"] = RsrcPool.RsrcType.ORGANICS
-    tiles["br"] = RsrcPool.RsrcType.ORGANICS
+    if carbon_dioxide == 0:
+      tiles["br"] = RsrcPool.RsrcType.ORGANICS
   if water > RESOURCE_LIMIT:
     tiles["bl"] = RsrcPool.RsrcType.VACCUUM
     tiles["br"] = RsrcPool.RsrcType.VACCUUM
+
   tile_requested_update.emit(_tiles.top_left, tiles["tl"])
   tile_requested_update.emit(_tiles.top_right, tiles["tr"])
   tile_requested_update.emit(_tiles.bottom_left, tiles["bl"])
