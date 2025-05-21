@@ -19,6 +19,7 @@ func _init() -> void:
 func _ready() -> void:
   build_cell_grid()
   resource_pool.resource_changed.connect(_on_resource_changed)
+  $Timer.timeout.connect(_on_timer_timeout)
 
 func _physics_process(delta: float) -> void:
   # Update cells every frame
@@ -77,8 +78,16 @@ func get_cell(tile_pos: Vector2i) -> BottleCell:
 
 func update_cells() -> void:
   for col in cell_grid_columns:
-      for cell: BottleCell in col:
-          cell.update_tiles()
+    for cell: BottleCell in col:
+      cell.update_tiles()
+
+func update_resources() -> void:
+  for col in cell_grid_columns:
+    for cell: BottleCell in col:
+      cell.update_resources()
 
 func _on_tile_requested_update(tile_pos: Vector2i, resource: RsrcPool.RsrcType) -> void:
   tile_requested_update.emit(tile_pos, resource)
+
+func _on_timer_timeout() -> void:
+  update_resources()

@@ -81,7 +81,7 @@ func lift_resource(resource_type: RsrcPool.RsrcType) -> bool:
     return false
   var amount_to_move = min(rsrc.amount, RESOURCE_LIMIT - top_rsrc.amount)
   move_resource(resource_type, amount_to_move, neighbors.top)
-  neighbors.top.update_tiles()
+  neighbors.top.update_resources()
   return true
 
 ## Moves the given amount of resource from this cell to the destination cell.
@@ -126,7 +126,6 @@ func has_tile(tile_pos: Vector2i) -> bool:
 
 ## Check the resources in the cell and fire events for tiles that need updating
 func update_tiles() -> void:
-  update_resources()
   var water = resources.get_resource(RsrcPool.RsrcType.WATER).amount
   var nutrients = resources.get_resource(RsrcPool.RsrcType.NUTRIENTS).amount
   var organics = resources.get_resource(RsrcPool.RsrcType.ORGANICS).amount

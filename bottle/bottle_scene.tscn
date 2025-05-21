@@ -61,6 +61,10 @@ script = ExtResource("3_tid1i")
 resource_pool = ExtResource("4_tid1i")
 metadata/_custom_type_script = "uid://cc28n4jvci3d1"
 
+[node name="Timer" type="Timer" parent="ResourceManager"]
+wait_time = 0.1
+autostart = true
+
 [node name="UI" type="CanvasLayer" parent="."]
 
 [node name="ResourceList" parent="UI" node_paths=PackedStringArray("resource_manager") instance=ExtResource("5_ew3lf")]
